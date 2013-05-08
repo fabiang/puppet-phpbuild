@@ -76,7 +76,7 @@ class phpbuild {
     path    => '/usr/bin:/usr/sbin:/bin',
     command => "git clone ${phpbuildRepo} ${phpbuildTmp}",
     creates => "${phpbuildTmp}/.git",
-    require => Class['git'],
+    require => Package['git-core'],
   }
 
   exec { 'install phpbuild through bash script':
