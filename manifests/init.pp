@@ -12,8 +12,8 @@
 #  class { 'phpbuild': }
 
 class phpbuild {
-  include gcc
-  include git
+  require gcc
+  require git
 
   $phpbuildDir = '/home/vagrant/.phpbuild'
   $phpbuildTmp = '/tmp/phpbuild'
@@ -82,8 +82,7 @@ class phpbuild {
   exec { "clone ${phpbuildRepo}":
     path    => '/usr/bin:/usr/sbin:/bin',
     command => "git clone ${phpbuildRepo} ${phpbuildTmp}",
-    creates => "${phpbuildTmp}/.git",
-    require => Package['git-core'],
+    creates => "${phpbuildTmp}/.git"
   }
 
   exec { 'install phpbuild through bash script':
