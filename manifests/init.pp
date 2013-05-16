@@ -12,6 +12,7 @@
 #  class { 'phpbuild': }
 
 class phpbuild {
+  include gcc
   include git
 
   $phpbuildDir = '/home/vagrant/.phpbuild'
