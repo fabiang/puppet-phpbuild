@@ -7,6 +7,7 @@
 # Actions:
 #
 # Requires:
+#   puppetlabs/gcc
 #   puppetlabs/git
 # Sample Usage:
 #  class { 'phpbuild': }
@@ -101,9 +102,16 @@ class phpbuild {
     content => template('phpbuild/default_configure_options.erb'),
   }
 
+  file { "${phpbuildDir}/share/php-build/definitions":
+    ensure  => directory,
+    recurse => true,
+    source  => "puppet:///modules/phpbuild/definitions",
+    require => File["${phpbuildDir}/share/php-build/default_configure_options"]
+  }
+
   file { '/etc/profile.d/phpbuild.sh':
     path    => '/etc/profile.d/phpbuild.sh',
-    require => Exec['install phpbuild through bash script'],
+    require => File["${phpbuildDir}/share/php-build/definitions"],
     content => template('phpbuild/phpbuild.sh.erb'),
   }
 }
