@@ -27,46 +27,52 @@ class phpbuild {
         path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
       }
 
-      $dependencies = [ "lsof", "iptables", "curl", "wget", "rsync", "libldap-2.4.2", "libldap2-dev", "libcurl4-openssl-dev", "mysql-client", "libmysqlclient-dev", "postgresql-client", "libpq-dev", "libssl-dev", "libxml2-dev", "libxslt1-dev", "libxslt-dev", "zlib1g-dev", "libssl0.9.8", "libbz2-dev", "libc-client2007e-dev", "libcurl4-gnutls-dev", "libfreetype6-dev", "libgmp3-dev", "libjpeg8-dev", "libmcrypt-dev", "libpng12-dev", "libt1-dev", "libmhash-dev", "libexpat1-dev", "libicu-dev", "libtidy-dev", "re2c", "lemon", "libstdc++6" ]
+      $dependencies = [ "lsof", "iptables", "curl", "wget", "rsync", "libldap-2.4.2", "libldap2-dev", "libcurl4-openssl-dev", "mysql-client", "libmysqlclient-dev", "postgresql-client", "libpq-dev", "libssl-dev", "libxml2-dev", "libxslt1-dev", "libxslt-dev", "zlib1g-dev", "libssl0.9.8", "libbz2-dev", "libc-client2007e-dev", "libcurl4-gnutls-dev", "libfreetype6-dev", "libgmp3-dev", "libjpeg8-dev", "libmcrypt-dev", "libpng12-dev", "libt1-dev", "libmhash-dev", "libexpat1-dev", "libicu-dev", "libtidy-dev", "re2c", "lemon", "libstdc++6", "libevent-dev" ]
 
       package { $dependencies:
         ensure  => 'installed',
-        require => Exec['apt-get update']
-      } -> Exec["clone ${phpbuildRepo}"]
+        require => Exec['apt-get update'],
+        before => Exec["clone ${phpbuildRepo}"]
+      }
 
       file { "/usr/lib/${hardwaremodel}-linux-gnu/libpng.so":
         ensure  => 'link',
         target  => '/usr/lib/libpng.so',
-        require => Package[$dependencies]
-      } -> Exec["clone ${phpbuildRepo}"]
+        require => Package[$dependencies],
+        before => Exec["clone ${phpbuildRepo}"]
+      }
 
       if $operatingsystemrelease >= 12.04 {
         file { "/usr/lib/${hardwaremodel}-linux-gnu/libmysqlclient_r.so":
           ensure  => 'link',
           target  => '/usr/lib/libmysqlclient_r.so',
-          require => Package[$dependencies]
-        } -> Exec["clone ${phpbuildRepo}"]
+          require => Package[$dependencies],
+          before => Exec["clone ${phpbuildRepo}"]
+        }
       }
 
       if $operatingsystemrelease  >= 11.10 {
         package { 'libltdl-dev':
           ensure  => 'installed',
-          require => Package[$dependencies]
-        } -> Exec["clone ${phpbuildRepo}"]
+          require => Package[$dependencies],
+          before => Exec["clone ${phpbuildRepo}"]
+        }
 
         # on 11.10+, we also have to symlink libjpeg and a bunch of other libraries
         # because of the 32-bit/64-bit library directory separation. MK.
         file { "/usr/lib/${hardwaremodel}-linux-gnu/libjpeg.so":
           ensure  => 'link',
           target  => '/usr/lib/libjpeg.so',
-          require => Package[$dependencies]
-        } -> Exec["clone ${phpbuildRepo}"]
+          require => Package[$dependencies],
+          before => Exec["clone ${phpbuildRepo}"]
+        }
 
-        /* file { "/usr/lib/${hardwaremodel}-linux-gnu//usr/lib/libstdc++.so.6":
+        /* file { "/usr/lib/${hardwaremodel}-linux-gnu/libstdc++.so.6":
           ensure  => 'link',
           target  => '/usr/lib/libstdc++.so.6',
-          require => Package[$dependencies]
-        } -> Exec["clone ${phpbuildRepo}"] */
+          require => Package[$dependencies],
+          before => Exec["clone ${phpbuildRepo}"]
+        } */
       }
     }
     default: { fail("Unrecognized operating system for phpbuild") }
