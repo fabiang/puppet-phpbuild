@@ -35,17 +35,17 @@ class phpbuild {
         before => Exec["clone ${phpbuildRepo}"]
       }
 
-      file { "/usr/lib/${hardwaremodel}-linux-gnu/libpng.so":
+      file { '/usr/lib/libpng.so':
         ensure  => 'link',
-        target  => '/usr/lib/libpng.so',
+        target  => "/usr/lib/${hardwaremodel}-linux-gnu/libpng.so",
         require => Package[$dependencies],
         before => Exec["clone ${phpbuildRepo}"]
       }
 
       if $operatingsystemrelease >= 12.04 {
-        file { "/usr/lib/${hardwaremodel}-linux-gnu/libmysqlclient_r.so":
+        file { '/usr/lib/libmysqlclient_r.so':
           ensure  => 'link',
-          target  => '/usr/lib/libmysqlclient_r.so',
+          target  => "/usr/lib/${hardwaremodel}-linux-gnu/libmysqlclient_r.so",
           require => Package[$dependencies],
           before => Exec["clone ${phpbuildRepo}"]
         }
@@ -60,19 +60,19 @@ class phpbuild {
 
         # on 11.10+, we also have to symlink libjpeg and a bunch of other libraries
         # because of the 32-bit/64-bit library directory separation. MK.
-        file { "/usr/lib/${hardwaremodel}-linux-gnu/libjpeg.so":
+        file { '/usr/lib/libjpeg.so':
           ensure  => 'link',
-          target  => '/usr/lib/libjpeg.so',
+          target  => "/usr/lib/${hardwaremodel}-linux-gnu/libjpeg.so",
+          require => Package[$dependencies],
+          before  => Exec["clone ${phpbuildRepo}"]
+        }
+
+        file { '/usr/lib/libstdc++.so.6':
+          ensure  => 'link',
+          target  => "/usr/lib/${hardwaremodel}-linux-gnu/libstdc++.so.6",
           require => Package[$dependencies],
           before => Exec["clone ${phpbuildRepo}"]
         }
-
-        /* file { "/usr/lib/${hardwaremodel}-linux-gnu/libstdc++.so.6":
-          ensure  => 'link',
-          target  => '/usr/lib/libstdc++.so.6',
-          require => Package[$dependencies],
-          before => Exec["clone ${phpbuildRepo}"]
-        } */
       }
     }
     default: { fail("Unrecognized operating system for phpbuild") }
