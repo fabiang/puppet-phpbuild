@@ -70,7 +70,7 @@ class phpbuild {
 
         file { '/usr/lib/libstdc++.so.6':
           ensure  => 'link',
-          target  => "/usr/lib/${hardwaremodel}-linux-gnu/libstdc++.so.6",
+          target  => "/usr/lib/${hardwaremodel}-linux-gnu//usr/lib/libstdc++.so.6",
           require => Package[$dependencies],
           before => Exec["clone ${phpbuildRepo}"]
         }
