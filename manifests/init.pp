@@ -20,12 +20,13 @@ class phpbuild {
 
   case $operatingsystem {
     centos, redhat: {
+      # Check out PHPBrew for its dependencies.
       fail("CentOS or RedHat are not supported yet")
     }
     debian, ubuntu: {
-      exec { "apt-get update":
-        path   => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-        before => Package[$gcc::params::gcc_package],
+      exec { 'apt-get update':
+        command => '/usr/bin/apt-get -y --force-yes update',
+        before  => Package[$gcc::params::gcc_package],
       }
 
       $dependencies = [ 'lsof', 'iptables', 'curl', 'wget', 'rsync', 'libldap-2.4.2', 'libldap2-dev', 'libcurl4-openssl-dev', 'mysql-client', 'libmysqlclient-dev', 'postgresql-client', 'libpq-dev', 'libssl-dev', 'libxml2-dev', 'libxslt1-dev', 'libxslt-dev', 'zlib1g-dev', 'libssl0.9.8', 'libbz2-dev', 'libc-client2007e-dev', 'libcurl4-gnutls-dev', 'libfreetype6-dev', 'libgmp3-dev', 'libjpeg8-dev', 'libmcrypt-dev', 'libpng12-dev', 'libt1-dev', 'libmhash-dev', 'libexpat1-dev', 'libicu-dev', 'libtidy-dev', 're2c', 'lemon', 'libstdc++6', 'libevent-dev', 'apache2-threaded-dev', 'git-core' ]
@@ -34,6 +35,12 @@ class phpbuild {
         ensure  => 'installed',
         require => Exec['apt-get update'],
         before => Exec["clone ${phpbuildRepo}"]
+      }
+
+      exec { 'apt-get build-dep php5-cli':
+        command   => '/usr/bin/apt-get -y --force-yes build-dep php5-cli',
+        logoutput => true,
+        before    => Exec["clone ${phpbuildRepo}"],
       }
 
       file { '/usr/lib/libpng.so':
@@ -70,7 +77,7 @@ class phpbuild {
 
         file { '/usr/lib/libstdc++.so.6':
           ensure  => 'link',
-          target  => "/usr/lib/${hardwaremodel}-linux-gnu//usr/lib/libstdc++.so.6",
+          target  => "/usr/lib/${hardwaremodel}-linux-gnu/libstdc++.so.6",
           require => Package[$dependencies],
           before => Exec["clone ${phpbuildRepo}"]
         }
