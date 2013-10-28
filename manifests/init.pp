@@ -8,11 +8,12 @@
 #
 # Requires:
 #   puppetlabs/gcc
+#   puppetlabs/git
 # Sample Usage:
 #  class { 'phpbuild': }
-
 class phpbuild {
   include gcc
+  include git
 
   $phpbuildDir = '/home/vagrant/.phpbuild'
   $phpbuildTmp = '/tmp/phpbuild'
@@ -29,7 +30,7 @@ class phpbuild {
         before  => Package[$gcc::params::gcc_package],
       }
 
-      $dependencies = [ 'lsof', 'iptables', 'curl', 'wget', 'rsync', 'libldap-2.4.2', 'libldap2-dev', 'libcurl4-openssl-dev', 'mysql-client', 'libmysqlclient-dev', 'postgresql-client', 'libpq-dev', 'libssl-dev', 'libxml2-dev', 'libxslt1-dev', 'libxslt-dev', 'zlib1g-dev', 'libssl0.9.8', 'libbz2-dev', 'libc-client2007e-dev', 'libcurl4-gnutls-dev', 'libfreetype6-dev', 'libgmp3-dev', 'libjpeg8-dev', 'libmcrypt-dev', 'libpng12-dev', 'libt1-dev', 'libmhash-dev', 'libexpat1-dev', 'libicu-dev', 'libtidy-dev', 're2c', 'lemon', 'libstdc++6', 'libevent-dev', 'apache2-threaded-dev', 'git-core' ]
+      $dependencies = [ 'lsof', 'iptables', 'curl', 'wget', 'rsync', 'libldap-2.4.2', 'libldap2-dev', 'libcurl4-openssl-dev', 'mysql-client', 'libmysqlclient-dev', 'postgresql-client', 'libpq-dev', 'libssl-dev', 'libxml2-dev', 'libxslt1-dev', 'libxslt-dev', 'zlib1g-dev', 'libssl0.9.8', 'libbz2-dev', 'libc-client2007e-dev', 'libcurl4-gnutls-dev', 'libfreetype6-dev', 'libgmp3-dev', 'libjpeg8-dev', 'libmcrypt-dev', 'libpng12-dev', 'libt1-dev', 'libmhash-dev', 'libexpat1-dev', 'libicu-dev', 'libtidy-dev', 're2c', 'lemon', 'libstdc++6', 'libevent-dev', 'apache2-threaded-dev' ]
 
       package { $dependencies:
         ensure  => 'installed',
@@ -89,7 +90,8 @@ class phpbuild {
   exec { "clone ${phpbuildRepo}":
     path    => '/usr/bin:/usr/sbin:/bin',
     command => "git clone ${phpbuildRepo} ${phpbuildTmp}",
-    creates => "${phpbuildTmp}/.git"
+    creates => "${phpbuildTmp}/.git",
+    require => Class["git"],
   }
 
   exec { 'install phpbuild through bash script':
